@@ -1,0 +1,143 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Build A Scalable Video Chat Application With Agora"
+    />
+    <meta
+      name="keywords"
+      content="Video Call, Agora, Django, Real Time Engagement"
+    />
+    <meta name="author" content="Kofi Obrasi Ocran" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+      integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{% static 'agora/index.css' %}"
+    />
+    <script src="https://cdn.agora.io/sdk/release/AgoraRTCSDK-3.3.1.js"></script>
+    <title>Agora Video Chat Django</title>
+  </head>
+  <body>
+    <main id="app">
+      <main>
+        <div class="container">
+          <div class="row">
+            <div class="col-12 text-center">
+              <img
+                src="{% static 'agora/agora-logo.png' %}"
+                alt="Agora Logo"
+                class="block img-fuild"
+              />
+            </div>
+          </div>
+        </div>
+        <div class="container my-5">
+          <div class="row">
+            <div class="col">
+              <div class="btn-group" role="group">
+                {% for singleUser in allUsers%}
+                <button
+                  type="button"
+                  class="btn btn-primary mr-2"
+
+                  @click="placeCall('{{singleUser.id}}','{{singleUser}}')"
+                >
+                  Call {{ singleUser }}
+                  <span class="badge badge-light"
+                    >${ getUserOnlineStatus({{singleUser.id}})}</span
+                  >
+                </button>
+
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+
+          <!-- Incoming Call  -->
+          <div class="row my-5" v-if="incomingCall">
+            <div class="col-12">
+              <p>Incoming Call From <strong>${ incomingCaller }</strong></p>
+              <div class="btn-group" role="group">
+                <button
+                  type="button"
+                  class="btn btn-danger"
+                  data-dismiss="modal"
+                  @click="declineCall"
+                >
+                  Decline
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-success ml-5"
+                  @click="acceptCall"
+                >
+                  Accept
+                </button>
+              </div>
+            </div>
+          </div>
+          <!-- End of Incoming Call  -->
+        </div>
+
+        <section id="video-container" v-if="callPlaced">
+          <div id="local-video"></div>
+          <div id="remote-video"></div>
+
+          <div class="action-btns">
+            <button
+              type="button"
+              class="btn btn-info"
+              @click="handleAudioToggle"
+            >
+              ${ mutedAudio ? "Unmute" : "Mute" }
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary mx-4"
+              @click="handleVideoToggle"
+            >
+              ${ mutedVideo ? "ShowVideo" : "HideVideo" }
+            </button>
+            <button type="button" class="btn btn-danger" @click="endCall">
+              EndCall
+            </button>
+          </div>
+
+        </section>
+      </main>
+    </main>
+    <!-- Add Scripts -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pusher/7.0.3/pusher.min.js"></script>
+    <script>
+      window.pusher = new Pusher("420e941c25574fda6378", {
+        authEndpoint: "{% url 'agora-pusher-auth' %}",
+        auth: {
+          headers: {
+            "X-CSRFToken": "{{ csrf_token }}",
+          },
+        },
+      });
+
+      const AUTH_USER = "{{user}}"
+      const AUTH_USER_ID =  "{{request.user.id}}"
+      const CSRF_TOKEN = "{{ csrf_token }}"
+    </script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js""
+    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="{% static 'agora/index.js' %}"></script>
+  </body>
+</html>
